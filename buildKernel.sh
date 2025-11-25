@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# add SukiSU Ultra
+curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s nongki
+
+export CROSS_COMPILE=/builds/Edhic1/a-31-kernel-action/toolchain/gcc/bin/aarch64-linux-android-
+export CC=/builds/Edhic1/a-31-kernel-action/toolchain/clang/host/linux-x86/clang-r383902/bin/clang
+export CLANG_TRIPLE=aarch64-linux-gnu-
+export ARCH=arm64
+export ANDROID_MAJOR_VERSION=r
+
+export KCFLAGS=-w
+export CONFIG_SECTION_MISMATCH_WARN_ONLY=y
+
+make -C $(pwd) O=$(pwd)/out KCFLAGS=-w CONFIG_SECTION_MISMATCH_WARN_ONLY=y a31_sukiSu_defconfig
+make -C $(pwd) O=$(pwd)/out KCFLAGS=-w CONFIG_SECTION_MISMATCH_WARN_ONLY=y
+
+#cp out/arch/arm64/boot/Image $(pwd)/arch/arm64/boot/Image
