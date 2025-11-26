@@ -235,7 +235,8 @@ typedef enum {
 typedef enum { noDictIssue = 0, dictSmall } dictIssue_directive;
 
 typedef enum { endOnOutputSize = 0, endOnInputSize = 1 } endCondition_directive;
-typedef enum { full = 0, partial = 1 } earlyEnd_directive;
+
+typedef enum { decode_full_block = 0, partial_decode = 1 } earlyEnd_directive;
 
 #define LZ4_STATIC_ASSERT(c) BUILD_BUG_ON(!(c))
  
