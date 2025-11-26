@@ -364,10 +364,6 @@ static FORCE_INLINE Rvl_t read_variable_length(const BYTE **ip,
  * optimization.
  */
  
- typedef enum {
-	decode_full_block = 0,
-	partial_decode    = 1,
-} earlyEnd_directive;
 
 static FORCE_INLINE int
 LZ4_decompress_generic(const char *const src, char *const dst, int srcSize,

@@ -89,7 +89,7 @@ jobs:
         cp $GITHUB_WORKSPACE/out/arch/arm64/boot/dts/mediatek/mt6768.dtb $CI_PROJECT_DIR/out/arch/arm64/boot/Image .
         ./patch_linux
         mv -f oImage Image
-        gzip -k Image
+        gzip -9 -k Image
         mv -f Image.gz Image $GITHUB_WORKSPACE/out/arch/arm64/boot/
 
     - name: Create Image.gz-dtb
