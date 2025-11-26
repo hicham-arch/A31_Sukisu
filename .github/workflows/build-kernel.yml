@@ -86,7 +86,7 @@ jobs:
         cd patchKPM
         wget https://github.com/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/download/0.12.2/patch_linux
         chmod +x patch_linux
-        cp $GITHUB_WORKSPACE/out/arch/arm64/boot/dts/mediatek/mt6768.dtb $CI_PROJECT_DIR/out/arch/arm64/boot/Image .
+        cp $GITHUB_WORKSPACE/out/arch/arm64/boot/dts/mediatek/mt6768.dtb $GITHUB_WORKSPACE/out/arch/arm64/boot/Image .
         ./patch_linux
         mv -f oImage Image
         gzip -9 -k Image
