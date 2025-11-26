@@ -40,6 +40,9 @@
 
 #define FORCE_INLINE __always_inline
 
+#ifndef LZ4_MEMOPS_DEFINED #define LZ4_MEMOPS_DEFINED static FORCE_INLINE void LZ4_memcpy(void *dst, const void *src, size_t size) { memcpy(dst, src, size); } static FORCE_INLINE void LZ4_memmove(void *dst, const void *src, size_t size) { memmove(dst, src, size); }
+#endif
+
 /*-************************************
  *	Basic Types
  **************************************/
