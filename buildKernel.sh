@@ -2,13 +2,13 @@
 
 echo "this where is am : $PWD"
 echo "this list file "
-ls
+ls toolchain/gcc
 
 # add SukiSU Ultra
 curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s nongki
 
-export CROSS_COMPILE=/home/runner/work/A31_Sukisu/toolchain/gcc/bin/aarch64-linux-android-
-export CC=/home/runner/work/A31_Sukisu/toolchain/clang/host/linux-x86/clang-r383902/bin/clang
+export CROSS_COMPILE=/home/runner/work/A31_Sukisu/A31_Sukisu/toolchain/gcc/bin/aarch64-linux-android-
+export CC=/home/runner/work/A31_Sukisu/A31_Sukisu/toolchain/clang/host/linux-x86/clang-r383902/bin/clang
 export CLANG_TRIPLE=aarch64-linux-gnu-
 export ARCH=arm64
 export ANDROID_MAJOR_VERSION=r
