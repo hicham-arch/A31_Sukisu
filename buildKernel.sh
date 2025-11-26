@@ -3,8 +3,8 @@
 # add SukiSU Ultra
 curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s nongki
 
-export CROSS_COMPILE=/builds/Edhic1/a-31-kernel-action/toolchain/gcc/bin/aarch64-linux-android-
-export CC=/builds/Edhic1/a-31-kernel-action/toolchain/clang/host/linux-x86/clang-r383902/bin/clang
+export CROSS_COMPILE=$GITHUB_WORKSPACE/toolchain/gcc/bin/aarch64-linux-android-
+export CC=$GITHUB_WORKSPACE/toolchain/clang/host/linux-x86/clang-r383902/bin/clang
 export CLANG_TRIPLE=aarch64-linux-gnu-
 export ARCH=arm64
 export ANDROID_MAJOR_VERSION=r
