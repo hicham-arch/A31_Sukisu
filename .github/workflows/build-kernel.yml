@@ -72,6 +72,8 @@ jobs:
         cd toolchains
         git clone https://github.com/kdrag0n/proton-clang --depth=1 .
         echo "PATH=$GITHUB_WORKSPACE/toolchains/bin:$PATH" >> $GITHUB_ENV
+        git clone https://github.com/physwizz/toolchain_cross-compile
+        mv toolchain_cross-compile/ gcc/
 
     - name: Build Kernel with buildKernel.sh
       run: |
