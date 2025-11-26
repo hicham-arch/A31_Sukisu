@@ -99,7 +99,7 @@ jobs:
         
     - name: Create boot.img
       run: |
-        git clone https://github.com/cfig/Android_boot_image_editor/releases/download/v15_r1/boot_editor_v15_r1.zip
+        wget https://github.com/cfig/Android_boot_image_editor/releases/download/v15_r1/boot_editor_v15_r1.zip
         unzip boot_editor_v15_r1.zip
         cd boot_editor_v15_r1/
         wget https://archive.org/download/boot_20251126/boot.img
