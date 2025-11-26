@@ -59,6 +59,7 @@ jobs:
           bc bison build-essential ccache curl flex git libelf-dev \
           libssl-dev lz4 ncurses-dev python3 unzip wget xz-utils zstd \
           clang lld libstdc++-12-dev lib32z1-dev gcc-multilib g++-multilib zip
+        sudo apt install -y git device-tree-compiler lz4 xz-utils zlib1g-dev openjdk-17-jdk gcc g++ python3 python-is-python3 p7zip-full android-sdk-libsparse-utils erofs-utils
 
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@v1.2
@@ -94,7 +95,19 @@ jobs:
 
     - name: Create Image.gz-dtb
       run: |
-        cat out/arch/arm64/boot/Image.gz out/arch/arm64/boot/mt6768.dtb > out/arch/arm64/boot/Image.gz-dtb || echo "DTB append failed or files missing"
+        cat out/arch/arm64/boot/Image.gz out/arch/arm64/boot/dts/mediatek/mt6768.dtb > out/arch/arm64/boot/Image.gz-dtb || echo "DTB append failed or files missing"
+        
+    - name: Create boot.img
+      run: |
+        git clone https://github.com/cfig/Android_boot_image_editor/releases/download/v15_r1/boot_editor_v15_r1.zip
+        unzip boot_editor_v15_r1.zip
+        cd boot_editor_v15_r1/
+        wget https://archive.org/download/boot_20251126/boot.img
+        ./gradlew unpack
+        rm build/unzip_boot/kernel
+        cp $GITHUB_WORKSPACE/out/arch/arm64/boot/Image.gz build/unzip_boot/kernel
+        ./gradlew pack
+        mv boot.img.signed $GITHUB_WORKSPACE/out/arch/arm64/boot/boot.img
 
     - name: Package with AnyKernel3
       run: |
@@ -107,7 +120,7 @@ jobs:
       run: |
         mkdir -p artifact
         cp KernelSU-A31-Flashable.zip artifact/ || echo "Flashable ZIP not found"
-        find out/arch/arm64/boot -name "Image*" -o -name "*.gz" -o -name "*.dtb" | xargs -I {} cp {} artifact/ || true
+        find out/arch/arm64/boot -name "Image*" -o -name "*.gz" -o -name "*.dtb" -name "boot.img" | xargs -I {} cp {} artifact/ || true
         cd artifact
         sha256sum * > checksum.txt || echo "No files to checksum"
 
