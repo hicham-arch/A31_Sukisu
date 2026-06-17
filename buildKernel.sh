@@ -13,11 +13,15 @@ if [ -f "$SYSCALL_HOOK_FILE" ] && ! grep -q "__aarch64__" "$SYSCALL_HOOK_FILE"; 
 #elif defined(__aarch64__)\
 typedef long (*syscall_fn_t)(const struct pt_regs *);\
 ' "$SYSCALL_HOOK_FILE"
+    grep -q "__aarch64__" "$SYSCALL_HOOK_FILE" || { echo "Failed to patch syscall_hook.h for arm64"; exit 1; }
 fi
 
 KSU_INIT_FILE="$(pwd)/drivers/kernelsu/core/init.c"
 if [ -f "$KSU_INIT_FILE" ]; then
-    sed -i 's/MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);/MODULE_IMPORT_NS("VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver");/' "$KSU_INIT_FILE"
+    if grep -q 'MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);' "$KSU_INIT_FILE"; then
+        sed -i 's/MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);/MODULE_IMPORT_NS("VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver");/' "$KSU_INIT_FILE"
+    fi
+    grep -q 'MODULE_IMPORT_NS("VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver");' "$KSU_INIT_FILE" || { echo "Failed to patch KernelSU init.c MODULE_IMPORT_NS"; exit 1; }
 fi
 
 KPM_FILE="$(pwd)/drivers/kernelsu/kpm/kpm.c"
