@@ -9,7 +9,7 @@ curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kern
 
 KPM_FILE="$(pwd)/drivers/kernelsu/kpm/kpm.c"
 if [ -f "$KPM_FILE" ] && ! grep -q "KSU_ACCESS_OK" "$KPM_FILE"; then
-    sed -i 's/\<access_ok(/KSU_ACCESS_OK(/g' "$KPM_FILE"
+    sed -i 's/access_ok(/KSU_ACCESS_OK(/g' "$KPM_FILE"
     sed -i '/#include "compact.h"/a\
 \
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 0, 0)\
