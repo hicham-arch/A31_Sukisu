@@ -7,6 +7,19 @@ ls toolchain/gcc
 # add SukiSU Ultra
 curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s nongki
 
+SYSCALL_HOOK_FILE="$(pwd)/drivers/kernelsu/hook/syscall_hook.h"
+if [ -f "$SYSCALL_HOOK_FILE" ] && ! grep -q "__aarch64__" "$SYSCALL_HOOK_FILE"; then
+    sed -i '/typedef sys_call_ptr_t syscall_fn_t;/a\
+#elif defined(__aarch64__)\
+typedef long (*syscall_fn_t)(const struct pt_regs *);\
+' "$SYSCALL_HOOK_FILE"
+fi
+
+KSU_INIT_FILE="$(pwd)/drivers/kernelsu/core/init.c"
+if [ -f "$KSU_INIT_FILE" ]; then
+    sed -i 's/MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);/MODULE_IMPORT_NS("VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver");/' "$KSU_INIT_FILE"
+fi
+
 KPM_FILE="$(pwd)/drivers/kernelsu/kpm/kpm.c"
 if [ -f "$KPM_FILE" ] && ! grep -q "KSU_ACCESS_OK" "$KPM_FILE"; then
     sed -i 's/access_ok(/KSU_ACCESS_OK(/g' "$KPM_FILE"
