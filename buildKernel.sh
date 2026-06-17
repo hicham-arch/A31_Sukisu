@@ -5,8 +5,9 @@ echo "this list file "
 ls toolchain/gcc
 
 # add SukiSU Ultra
-curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s nongki
+curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s v0.9.5
 
+<< 'COMMENT'
 SYSCALL_HOOK_FILE="$(pwd)/drivers/kernelsu/hook/syscall_hook.h"
 if [ -f "$SYSCALL_HOOK_FILE" ] && ! grep -q "__aarch64__" "$SYSCALL_HOOK_FILE"; then
     grep -q '^#if defined(__x86_64__)' "$SYSCALL_HOOK_FILE" || {
@@ -48,6 +49,7 @@ if [ -f "$KPM_FILE" ] && ! grep -q "KSU_ACCESS_OK" "$KPM_FILE"; then
 #endif\
 ' "$KPM_FILE"
 fi
+COMMENT
 
 export CROSS_COMPILE=$GITHUB_WORKSPACE/toolchains/gcc/bin/aarch64-linux-android-
 export CC=$GITHUB_WORKSPACE/toolchain/clang/host/linux-x86/clang-r383902/bin/clang
