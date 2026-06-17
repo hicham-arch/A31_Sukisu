@@ -9,6 +9,10 @@ curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kern
 
 SYSCALL_HOOK_FILE="$(pwd)/drivers/kernelsu/hook/syscall_hook.h"
 if [ -f "$SYSCALL_HOOK_FILE" ] && ! grep -q "__aarch64__" "$SYSCALL_HOOK_FILE"; then
+    grep -q '^#if defined(__x86_64__)' "$SYSCALL_HOOK_FILE" || {
+        echo "Failed to patch $SYSCALL_HOOK_FILE: expected x86_64 conditional block was not found"
+        exit 1
+    }
     grep -Eq 'sys_call_ptr_t[[:space:]]+syscall_fn_t[[:space:]]*;' "$SYSCALL_HOOK_FILE" || {
         echo "Failed to patch $SYSCALL_HOOK_FILE: expected syscall_fn_t typedef anchor was not found (KernelSU layout may have changed)"
         exit 1
@@ -17,7 +21,8 @@ if [ -f "$SYSCALL_HOOK_FILE" ] && ! grep -q "__aarch64__" "$SYSCALL_HOOK_FILE"; 
 #elif defined(__aarch64__)\
 typedef long (*syscall_fn_t)(const struct pt_regs *);\
 ' "$SYSCALL_HOOK_FILE"
-    grep -q "__aarch64__" "$SYSCALL_HOOK_FILE" || { echo "Failed to patch $SYSCALL_HOOK_FILE for arm64 typedef insertion"; exit 1; }
+    grep -q '#elif defined(__aarch64__)' "$SYSCALL_HOOK_FILE" || { echo "Failed to patch $SYSCALL_HOOK_FILE: arm64 conditional branch was not inserted"; exit 1; }
+    grep -Fq 'typedef long (*syscall_fn_t)(const struct pt_regs *);' "$SYSCALL_HOOK_FILE" || { echo "Failed to patch $SYSCALL_HOOK_FILE: arm64 syscall_fn_t typedef was not inserted"; exit 1; }
 fi
 
 KSU_INIT_FILE="$(pwd)/drivers/kernelsu/core/init.c"
