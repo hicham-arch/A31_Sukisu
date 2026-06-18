@@ -36,7 +36,7 @@ if [ -f "$KSU_INIT_FILE" ]; then
         exit 1
     }
 fi
-COMMENT
+
 KPM_FILE="$(pwd)/drivers/kernelsu/kpm/kpm.c"
 if [ -f "$KPM_FILE" ] && ! grep -q "KSU_ACCESS_OK" "$KPM_FILE"; then
     sed -i 's/access_ok(/KSU_ACCESS_OK(/g' "$KPM_FILE"
@@ -49,7 +49,7 @@ if [ -f "$KPM_FILE" ] && ! grep -q "KSU_ACCESS_OK" "$KPM_FILE"; then
 #endif\
 ' "$KPM_FILE"
 fi
-
+COMMENT
 
 export CROSS_COMPILE=$GITHUB_WORKSPACE/toolchains/gcc/bin/aarch64-linux-android-
 export CC=$GITHUB_WORKSPACE/toolchain/clang/host/linux-x86/clang-r383902/bin/clang
