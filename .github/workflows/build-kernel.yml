@@ -85,7 +85,7 @@ jobs:
       run: |
         mkdir patchKPM
         cd patchKPM
-        wget https://github.com/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/download/0.12.2/patch_linux
+        wget https://github.com/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/download/0.13.0/patch_linux
         chmod +x patch_linux
         cp $GITHUB_WORKSPACE/out/arch/arm64/boot/dts/mediatek/mt6768.dtb $GITHUB_WORKSPACE/out/arch/arm64/boot/Image .
         ./patch_linux
