@@ -5972,7 +5972,8 @@ CONFIG_KPM=n
 
 # KernelSU
 CONFIG_KSU=y
-CONFIG_KPROBES=y
+#CONFIG_KPROBES=y
+CONFIG_KSU_MANUAL_HOOK=y
 
 # Ubuntu Chroot Kernel Configuration
 CONFIG_IPC_NS=y
