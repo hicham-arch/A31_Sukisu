@@ -7,7 +7,12 @@ ls toolchain/gcc
 # add SukiSU Ultra
 #curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s main
 curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash
-sh ./patch_ksu_4.14.sh
+
+# 2. Run your existing patch script for Kernel 4.14
+echo "--- Applying ReSukiSU 4.14 Patches ---"
+chmod +x ./patch_ReSukiSU_4.14.sh
+sh ./patch_ReSukiSU_4.14.sh
+
 
 << 'COMMENT'
 SYSCALL_HOOK_FILE="$(pwd)/drivers/kernelsu/hook/syscall_hook.h"
