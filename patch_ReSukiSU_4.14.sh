@@ -1,0 +1,243 @@
+#!/bin/bash
+
+echo "=== Applying ReSukiSU Manual Hooks for Kernel 4.14 ==="
+
+# 1. Patching Hook Files
+patch -p1 << 'EOF'
+diff --git a/fs/stat.c b/fs/stat.c
+index 1111111..2222222 100644
+--- a/fs/stat.c
++++ b/fs/stat.c
+@@ -353,6 +353,16 @@ SYSCALL_DEFINE2(newlstat, const char __user *, filename,
+ 	return cp_new_stat(&stat, statbuf);
+ }
+ 
++#ifdef CONFIG_KSU_MANUAL_HOOK
++__attribute__((hot)) 
++extern int ksu_handle_stat(int *dfd, const char __user **filename_user, int *flags);
++extern void ksu_handle_newfstat_ret(unsigned int *fd, struct stat __user **statbuf_ptr);
++#if defined(__ARCH_WANT_STAT64) || defined(__ARCH_WANT_COMPAT_STAT64)
++extern void ksu_handle_fstat64_ret(unsigned long *fd, struct stat64 __user **statbuf_ptr);
++#endif
++#endif
++
+ #if !defined(__ARCH_WANT_STAT64) || defined(__ARCH_WANT_SYS_NEWFSTATAT)
+ SYSCALL_DEFINE4(newfstatat, int, dfd, const char __user *, filename,
+ 		struct stat __user *, statbuf, int, flag)
+@@ -360,6 +370,9 @@ SYSCALL_DEFINE4(newfstatat, int, dfd, const char __user *, filename,
+ 	struct kstat stat;
+ 	int error;
+ 
++#ifdef CONFIG_KSU_MANUAL_HOOK
++	ksu_handle_stat(&dfd, &filename, &flag);
++#endif
+ 	error = vfs_fstatat(dfd, filename, &stat, flag);
+ 	if (error)
+ 		return error;
+@@ -504,6 +517,9 @@ SYSCALL_DEFINE4(fstatat64, int, dfd, const char __user *, filename,
+ 	struct kstat stat;
+ 	int error;
+ 
++#ifdef CONFIG_KSU_MANUAL_HOOK
++	ksu_handle_stat(&dfd, &filename, &flag); 
++#endif
+ 	error = vfs_fstatat(dfd, filename, &stat, flag);
+ 	if (error)
+ 		return error;
+@@ -364,6 +380,9 @@ SYSCALL_DEFINE2(newfstat, unsigned int, fd, struct stat __user *, statbuf)
+ 	if (!error)
+ 		error = cp_new_stat(&stat, statbuf);
+ 
++#ifdef CONFIG_KSU_MANUAL_HOOK
++	ksu_handle_newfstat_ret(&fd, &statbuf);
++#endif
+ 	return error;
+ }
+ 
+@@ -490,6 +509,9 @@ SYSCALL_DEFINE2(fstat64, unsigned long, fd, struct stat64 __user *, statbuf)
+ 	if (!error)
+ 		error = cp_new_stat64(&stat, statbuf);
+ 
++#ifdef CONFIG_KSU_MANUAL_HOOK
++	ksu_handle_fstat64_ret(&fd, &statbuf);
++#endif
+ 	return error;
+ }
+diff --git a/fs/exec.c b/fs/exec.c
+index 1111111..2222222 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1886,12 +1886,26 @@ static int do_execveat_common(int fd, struct filename *filename,
+ 	return retval;
+ }
+ 
++#ifdef CONFIG_KSU_MANUAL_HOOK
++__attribute__((hot))
++extern int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *argv, void *envp, int *flags);
++#endif
++
+ int do_execve(struct filename *filename,
+ 	const char __user *const __user *__argv,
+ 	const char __user *const __user *__envp)
+ {
+ 	struct user_arg_ptr argv = { .ptr.native = __argv };
+ 	struct user_arg_ptr envp = { .ptr.native = __envp };
++#ifdef CONFIG_KSU_MANUAL_HOOK
++	ksu_handle_execveat((int *)AT_FDCWD, &filename, &argv, &envp, 0);
++#endif
+ 	return do_execveat_common(AT_FDCWD, filename, argv, envp, 0);
+ }
+ 
+@@ -1919,6 +1933,10 @@ static int compat_do_execve(struct filename *filename,
+ 		.is_compat = true,
+ 		.ptr.compat = __envp,
+ 	};
++#ifdef CONFIG_KSU_MANUAL_HOOK
++	ksu_handle_execveat((int *)AT_FDCWD, &filename, &argv, &envp, 0);
++#endif
+ 	return do_execveat_common(AT_FDCWD, filename, argv, envp, 0);
+ }
+diff --git a/fs/open.c b/fs/open.c
+index 1111111..2222222 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -354,6 +354,11 @@ SYSCALL_DEFINE4(fallocate, int, fd, int, mode, loff_t, offset, loff_t, len)
+ 	return error;
+ }
+ 
++#ifdef CONFIG_KSU_MANUAL_HOOK
++__attribute__((hot)) 
++extern int ksu_handle_faccessat(int *dfd, const char __user **filename_user, int *mode, int *flags);
++#endif
++
+ /*
+  * access() needs to use the real uid/gid, not the effective uid/gid.
+  * We do this by temporarily clearing all FS-related capabilities and
+@@ -369,6 +374,10 @@ SYSCALL_DEFINE3(faccessat, int, dfd, const char __user *, filename, int, mode)
+ 	int res;
+ 	unsigned int lookup_flags = LOOKUP_FOLLOW;
+ 
++#ifdef CONFIG_KSU_MANUAL_HOOK
++	ksu_handle_faccessat(&dfd, &filename, &mode, NULL);
++#endif
++
+ 	if (mode & ~S_IRWXO)	/* where's F_OK, X_OK, W_OK, R_OK? */
+ 		return -EINVAL;
+diff --git a/kernel/reboot.c b/kernel/reboot.c
+index 1111111..2222222 100644
+--- a/kernel/reboot.c
++++ b/kernel/reboot.c
+@@ -277,6 +277,10 @@ static DEFINE_MUTEX(reboot_mutex);
+  *
+  * reboot doesn't sync: do that yourself before calling this.
+  */
++#ifdef CONFIG_KSU_MANUAL_HOOK
++extern int ksu_handle_sys_reboot(int magic1, int magic2, unsigned int cmd, void __user **arg);
++#endif
++
+ SYSCALL_DEFINE4(reboot, int, magic1, int, magic2, unsigned int, cmd,
+ 		void __user *, arg)
+ {
+@@ -284,6 +288,9 @@ SYSCALL_DEFINE4(reboot, int, magic1, int, magic2, unsigned int, cmd,
+ 	char buffer[256];
+ 	int ret = 0;
+ 
++#ifdef CONFIG_KSU_MANUAL_HOOK
++	ksu_handle_sys_reboot(magic1, magic2, cmd, &arg);
++#endif
+ 	/* We only trust the superuser with rebooting the system. */
+ 	if (!ns_capable(pid_ns->user_ns, CAP_SYS_BOOT))
+ 		return -EPERM;
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 1111111..2222222 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -436,11 +436,22 @@ static void input_handle_event(struct input_dev *dev,
+  * to 'seed' initial state of a switch or initial position of absolute
+  * axis, etc.
+  */
++#ifdef CONFIG_KSU_MANUAL_HOOK
++extern bool ksu_input_hook __read_mostly;
++extern __attribute__((cold)) int ksu_handle_input_handle_event(unsigned int *type, unsigned int *code, int *value);
++#endif
++
+ void input_event(struct input_dev *dev,
+ 		 unsigned int type, unsigned int code, int value)
+ {
+ 	unsigned long flags;
+ 
++#ifdef CONFIG_KSU_MANUAL_HOOK
++	if (unlikely(ksu_input_hook))
++		ksu_handle_input_handle_event(&type, &code, &value);
++#endif
++
+ 	if (is_event_supported(type, dev->evbit, EV_MAX)) {
+ 
+ 		spin_lock_irqsave(&dev->event_lock, flags);
+diff --git a/kernel/sys.c b/kernel/sys.c
+index 1111111..2222222 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -835,6 +835,9 @@ error:
+        return retval;
+ }
+ 
++#ifdef CONFIG_KSU_MANUAL_HOOK
++extern int ksu_handle_setresuid(uid_t ruid, uid_t euid, uid_t suid);
++#endif
+ 
+ /*
+  * This function implements a generic ability to update ruid, euid,
+@@ -848,6 +851,10 @@ SYSCALL_DEFINE3(setresuid, uid_t, ruid, uid_t, euid, uid_t, suid)
+        int retval;
+        kuid_t kruid, keuid, ksuid;
+ 
++#ifdef CONFIG_KSU_MANUAL_HOOK
++       (void)ksu_handle_setresuid(ruid, euid, suid);
++#endif
++
+        kruid = make_kuid(ns, ruid);
+        keuid = make_kuid(ns, euid);
+        ksuid = make_kuid(ns, suid);
+diff --git a/fs/read_write.c b/fs/read_write.c
+index 1111111..2222222 100644
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -568,11 +568,21 @@ static inline void file_pos_write(struct file *file, loff_t pos)
+ 		file->f_pos = pos;
+ }
+ 
++#ifdef CONFIG_KSU_MANUAL_HOOK
++extern bool ksu_init_rc_hook __read_mostly;
++extern __attribute__((cold)) int ksu_handle_sys_read(unsigned int fd, char __user **buf_ptr, size_t *count_ptr);
++#endif
++
+ SYSCALL_DEFINE3(read, unsigned int, fd, char __user *, buf, size_t, count)
+ {
+ 	struct fd f = fdget_pos(fd);
+ 	ssize_t ret = -EBADF;
+ 
++#ifdef CONFIG_KSU_MANUAL_HOOK
++	if (unlikely(ksu_init_rc_hook)) 
++		ksu_handle_sys_read(fd, &buf, &count);
++#endif
++	if (f.file) {
++		loff_t pos = file_pos_read(f.file);
++		ret = vfs_read(f.file, buf, count, &pos);
+EOF
+
+# 2. Un-staticizing Export Symbols via Sed (Safer for vendor trees)
+echo "--> Exporting static symbols..."
+
+sed -i 's/static ssize_t (\*write_op\[\])/ssize_t (\*write_op\[\])/g' security/selinux/selinuxfs.c
+sed -i 's/static const struct file_operations sel_handle_status_ops/const struct file_operations sel_handle_status_ops/g' security/selinux/selinuxfs.c
+sed -i 's/static struct page \*selinux_status_page;/struct page \*selinux_status_page;/g' security/selinux/ss/services.c
+sed -i 's/static DEFINE_MUTEX(selinux_status_lock);/DEFINE_MUTEX(selinux_status_lock);/g' security/selinux/ss/services.c
+sed -i 's/static DEFINE_RWLOCK(policy_rwlock);/DEFINE_RWLOCK(policy_rwlock);/g' security/selinux/ss/services.c
+sed -i 's/static DEFINE_MUTEX(sel_mutex);/DEFINE_MUTEX(sel_mutex);/g' security/selinux/selinuxfs.c
+sed -i 's/static struct security_operations selinux_ops/struct security_operations selinux_ops/g' security/selinux/hooks.c
+sed -i 's/static void security_dump_masked_av/void security_dump_masked_av/g' security/selinux/ss/services.c
+sed -i 's/static void context_struct_compute_av/void context_struct_compute_av/g' security/selinux/ss/services.c
+
+echo "=== Patch Application Finished ==="
+
