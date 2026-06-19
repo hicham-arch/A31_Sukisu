@@ -5,7 +5,7 @@ echo "this list file "
 ls toolchain/gcc
 
 # add SukiSU Ultra
-curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s v0.9.5
+curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s main
 
 SYSCALL_HOOK_FILE="$(pwd)/drivers/kernelsu/hook/syscall_hook.h"
 if [ -f "$SYSCALL_HOOK_FILE" ] && ! grep -q "__aarch64__" "$SYSCALL_HOOK_FILE"; then
