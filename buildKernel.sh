@@ -9,9 +9,9 @@ ls toolchain/gcc
 curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash
 
 # 2. Run your existing patch script for Kernel 4.14
-echo "--- Applying ReSukiSU 4.14 Patches ---"
-chmod +x ./patch_ReSukiSU_4.14.sh
-sh ./patch_ReSukiSU_4.14.sh
+#echo "--- Applying ReSukiSU 4.14 Patches ---"
+#chmod +x ./patch_ReSukiSU_4.14.sh
+#sh ./patch_ReSukiSU_4.14.sh
 
 
 << 'COMMENT'
