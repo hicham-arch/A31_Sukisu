@@ -5,8 +5,10 @@ echo "this list file "
 ls toolchain/gcc
 
 # add SukiSU Ultra
-curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s main
+#curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s main
+curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash
 
+<< 'COMMENT'
 SYSCALL_HOOK_FILE="$(pwd)/drivers/kernelsu/hook/syscall_hook.h"
 if [ -f "$SYSCALL_HOOK_FILE" ] && ! grep -q "__aarch64__" "$SYSCALL_HOOK_FILE"; then
     grep -q '^#if defined(__x86_64__)' "$SYSCALL_HOOK_FILE" || {
@@ -25,7 +27,7 @@ typedef long (*syscall_fn_t)(const struct pt_regs *);\
     grep -Fq 'typedef long (*syscall_fn_t)(const struct pt_regs *);' "$SYSCALL_HOOK_FILE" || { echo "Failed to patch $SYSCALL_HOOK_FILE: arm64 syscall_fn_t typedef was not inserted"; exit 1; }
 fi
 
-<< 'COMMENT'
+
 KSU_INIT_FILE="$(pwd)/drivers/kernelsu/core/init.c"
 if [ -f "$KSU_INIT_FILE" ]; then
     if grep -q 'MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);' "$KSU_INIT_FILE"; then
