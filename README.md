@@ -54,7 +54,7 @@ Odin cannot flash a raw boot.img directly; it must be packaged inside a .tar arc
  7. Click **Start** to initiate the flashing process.
 ### Step 3: Post-Flash Setup
  1. Once Odin displays a green PASS message, force reboot your phone manually by holding Volume Down + Power.
- 2. Once the system finishes booting, download and install the official [KernelSU Manager App](https://github.com/ReSukiSU/ReSukiSU/actions/runs/28589959781/artifacts/8038830692) to configure your root access and manage modules.
+ 2. Once the system finishes booting, download and install the official [ReSukiSU Manager App](https://github.com/ReSukiSU/ReSukiSU/actions/runs/28589959781/artifacts/8038830692) to configure your root access and manage modules.
 ## 🤝 Credits & Acknowledgements
  * Samsung Open Source for providing the base stock kernel source.
  * KernelSU by tiann.
