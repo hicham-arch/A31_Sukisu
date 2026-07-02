@@ -1,7 +1,7 @@
 # A31 Sukisu Kernel 📱
-GitHub Release
+[![GitHub Release](https://img.shields.io/github/v/release/hicham-arch/A31_Sukisu?style=flat-square)](https://github.com/hicham-arch/A31_Sukisu/releases)
+[![Language](https://img.shields.io/badge/Language-C%20%7C%20Makefile-blue?style=flat-square)](#)
 
-Language
 > **KernelSU (ReSukiSU) integrated custom kernel for the Samsung Galaxy A31 series (A31X / SM-A315F).**
 > 
 This repository contains the Linux kernel source code for the Samsung Galaxy A31, pre-patched with KernelSU (specifically the ReSukiSU implementation for the 4.14 kernel). It provides a root solution operating directly in kernel space for maximum stealth, efficiency, and module support.
